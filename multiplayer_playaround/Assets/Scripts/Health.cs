@@ -1,23 +1,41 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+//Synchro on server
+using UnityEngine.Networking;
+using System.Collections;
 
-public class Health : MonoBehaviour
+public class Health : NetworkBehaviour
 {
-    public const int maxHealth = 100;
-    public int currentHealth = maxHealth;
 
-    //Reference to healthbar
+    public const int maxHealth = 100;
+
+    //Synchro variable currenthealth
+    //Synchro only happens on server side --> We need to synchronize foreground on client side!
+    //[SyncVar]
+    [SyncVar(hook = "OnChangeHealth")]
+    public int currentHealth = maxHealth;
     public RectTransform healthBar;
 
     public void TakeDamage(int amount)
     {
+        //check if server
+        if (!isServer)
+        {
+            return;
+        }
+
         currentHealth -= amount;
         if (currentHealth <= 0)
         {
             currentHealth = 0;
             Debug.Log("Dead!");
         }
-        //Update size of healthbar
+
         healthBar.sizeDelta = new Vector2(currentHealth, healthBar.sizeDelta.y);
+    }
+
+    void OnChangeHealth(int health)
+    {
+        healthBar.sizeDelta = new Vector2(health, healthBar.sizeDelta.y);
     }
 }
