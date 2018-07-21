@@ -6,7 +6,7 @@ using System.Collections;
 
 public class Health : NetworkBehaviour
 {
-
+    public bool destroyOnDeath;
     public const int maxHealth = 100;
 
     //Synchro variable currenthealth
@@ -27,15 +27,21 @@ public class Health : NetworkBehaviour
         currentHealth -= amount;
         if (currentHealth <= 0)
         {
-            // currentHealth = 0;
-            //Debug.Log("Dead!");
-            //RPC SPAWN
-            currentHealth = maxHealth;
-            // called on the Server, but invoked on the Clients
-            RpcRespawn();
+            if (destroyOnDeath)
+            {
+                Destroy(gameObject);
+            }
+            else
+            {
+                // currentHealth = 0;
+                //Debug.Log("Dead!");
+                //RPC SPAWN
+                currentHealth = maxHealth;
+                // called on the Server, but invoked on the Clients
+                RpcRespawn();
+            }
         }
 
-        healthBar.sizeDelta = new Vector2(currentHealth, healthBar.sizeDelta.y);
     }
 
     void OnChangeHealth(int health)
